@@ -31,4 +31,4 @@ class Tarefa(models.Model):
     id_user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Tarefa {self.id_tarefa}: {self.descricao[:20]}"
+        return f"Tarefa {self.id_tarefa}: {self.descricao[:20]} - Usuário: {self.id_user.nome}"

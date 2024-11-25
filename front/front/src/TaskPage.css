@@ -1,48 +1,101 @@
-.task-page {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-
-.task-page-header {
+.header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
-.task-columns {
+.title {
+  margin: 0 auto;
   display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
+  align-items: center;
+  gap: 8px;
 }
 
-.task-column {
-  flex: 1;
-  margin: 0 10px;
+.title h1{
+  font-size: 40px;
+  color: #004BA8;
+  font-weight: bold;
 }
 
-.task-card {
-  background: #f4f8ff;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+.menu-icon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
 }
 
-.task-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.add-task-button {
+/* Estilo do menu lateral */
+.sidebar {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #007bff;
+  top: 0;
+  left: -5000px; /* Escondido fora da tela */
+  width: 250px;
+  height: 100%;
+  background-color: #4A525A;
   color: white;
-  border: none;
-  border-radius: 50%;
+  padding: 30px;
+  transition: left 0.3s ease; /* Animação suave */
+  border-radius: 0px 20px 20px 0px;
+}
+
+.sidebar.open {
+  left: 0; /* Menu aparece na tela */
+}
+
+.sidebar img{
+  margin-left: 85%;
+  cursor: pointer;
+}
+
+.sidebar h1{
   font-size: 24px;
-  width: 50px;
-  height: 50px;
+}
+
+.sidebar hr{
+  outline: none;
+  border: none;
+  background-color: #75B3FF;
+  height: 2px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 16px 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sidebar li:hover {
+  color: #aaa;
+}
+
+.main {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.main > div {
+  flex: 1;
+  padding: 10px; /* Espaçamento interno */
+}
+
+.toDo h1{
+  color: #004BA8;
+}
+
+.Doing h1{
+  color: #004BA8;
+}
+
+.Done h1{
+  color: #004BA8;
+}
+
+.adicionar{
+  background-color: #004BA8;
 }

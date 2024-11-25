@@ -1,95 +1,104 @@
 import React, { useState, useEffect } from "react";
-import "./TaskPage.css"; // Adicione o CSS para estilizar os componentes
-import { fetchTasks, updateTaskStatus } from "./api"; // Funções para conexão com o backend
+import "./TaskPage.css";
+import Menu from "./assets/Menu.svg";
+import Check from "./assets/Check.svg";
+import Plus from "./assets/Plus.svg";
+import x from "./assets/X.svg";
+import TaskCard from "./TaskCard";
 
-const TaskPage = () => {
-  const [tasks, setTasks] = useState({ ToDo: [], Doing: [], Done: [] });
+export default function TaskPage() {
+  const [tasks, setTasks] = useState({ toDo: [], doing: [], done: [] });
 
-  // Função para carregar as tarefas do backend
+
+  // Função para buscar os dados do backend
   useEffect(() => {
-    const loadTasks = async () => {
+    const fetchTasks = async () => {
       try {
-        const data = await fetchTasks();
+        const response = await fetch("http://127.0.0.1:8000/tarefas/api/tarefas/");
+      const data = await response.json();
         setTasks({
-          ToDo: data.filter((task) => task.status === "ToDo"),
-          Doing: data.filter((task) => task.status === "Doing"),
-          Done: data.filter((task) => task.status === "Done"),
+          toDo: data.filter((task) => task.status === "pendente"),
+          doing: data.filter((task) => task.status === "em_progresso"),
+          done: data.filter((task) => task.status === "concluida")
         });
       } catch (error) {
-        console.error("Erro ao carregar tarefas:", error);
+        console.error("Erro ao buscar tarefas:", error);
       }
     };
-    loadTasks();
+
+    fetchTasks();
   }, []);
 
-  // Função para alterar o status de uma tarefa
-  const handleStatusChange = async (taskId, newStatus) => {
-    try {
-      await updateTaskStatus(taskId, newStatus);
-      setTasks((prev) => {
-        const updatedTasks = { ...prev };
-        Object.keys(updatedTasks).forEach((key) => {
-          updatedTasks[key] = updatedTasks[key].filter((task) => task.id !== taskId);
-        });
-        const updatedTask = { ...prev.ToDo.find((t) => t.id === taskId), status: newStatus };
-        updatedTasks[newStatus].push(updatedTask);
-        return updatedTasks;
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar status:", error);
-    }
-  };
+  console.log(tasks)
+
+
 
   return (
-    <div className="task-page">
-      <header className="task-page-header">
-        <div className="menu-icon">☰</div>
-        <h1>Taskly</h1>
-      </header>
-      <main className="task-columns">
-        {["ToDo", "Doing", "Done"].map((status) => (
-          <TaskColumn
-            key={status}
-            status={status}
-            tasks={tasks[status]}
-            onStatusChange={handleStatusChange}
-          />
-        ))}
-      </main>
-      <button className="add-task-button">+</button>
-    </div>
+    <>
+      <div className="header">
+        <div className="title">
+          <img src={Check} alt="Check" />
+          <h1>TASKLY</h1>
+        </div>
+      </div>
+
+      <div className="main">
+        <div className="toDo">
+          <h1>ToDo</h1>
+          {tasks.toDo.length === 0 ? (
+            <p>Nenhuma tarefa pendente.</p>
+          ) : (
+            tasks.toDo.map((task) => (
+              <TaskCard
+                key={task.id}
+                descricao={task.descricao}
+                prioridade={task.prioridade}
+                setor={task.nome_setor}
+                vinculadoA={task.vinculadoA}
+                status={task.status}
+              />
+            ))
+          )}
+        </div>
+
+        <div className="Doing">
+          <h1>Doing</h1>
+          {tasks.doing.length === 0 ? (
+            <p>Nenhuma tarefa em andamento.</p>
+          ) : (
+            tasks.doing.map((task) => (
+              <TaskCard
+                key={task.id}
+                descricao={task.descricao}
+                prioridade={task.prioridade}
+                setor={task.nome_setor}
+                vinculadoA={task.vinculadoA}
+                status={task.status}
+              />
+            ))
+          )}
+        </div>
+
+        <div className="Done">
+          <h1>Done</h1>
+          {tasks.done.length === 0 ? (
+            <p>Nenhuma tarefa concluída.</p>
+          ) : (
+            tasks.done.map((task) => (
+              <TaskCard
+                key={task.id}
+                descricao={task.descricao}
+                prioridade={task.prioridade}
+                setor={task.nome_setor}
+                vinculadoA={task.id_user}
+                status={task.status}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      <img src={Plus} alt="Add Task" className="adicionar" />
+    </>
   );
-};
-
-// Componente para cada coluna
-const TaskColumn = ({ status, tasks, onStatusChange }) => (
-  <div className="task-column">
-    <h2>{status}</h2>
-    {tasks.map((task) => (
-      <TaskCard key={task.id} task={task} onStatusChange={onStatusChange} />
-    ))}
-  </div>
-);
-
-// Componente para cada cartão de tarefa
-const TaskCard = ({ task, onStatusChange }) => (
-  <div className="task-card">
-    <p><strong>Descrição:</strong> {task.description}</p>
-    <p><strong>Prioridade:</strong> {task.priority}</p>
-    <p><strong>Vinculado a:</strong> {task.user}</p>
-    <div className="task-actions">
-      <select
-        value={task.status}
-        onChange={(e) => onStatusChange(task.id, e.target.value)}
-      >
-        <option value="ToDo">A fazer</option>
-        <option value="Doing">Fazendo</option>
-        <option value="Done">Feito</option>
-      </select>
-      <button>🖉</button>
-      <button>🗑</button>
-    </div>
-  </div>
-);
-
-export default TaskPage;
+}
