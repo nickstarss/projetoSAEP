@@ -1,25 +1,49 @@
 import React, { useState, useEffect } from "react";
 import "./TaskPage.css";
-import Menu from "./assets/Menu.svg";
 import Check from "./assets/Check.svg";
 import Plus from "./assets/Plus.svg";
-import x from "./assets/X.svg";
 import TaskCard from "./TaskCard";
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState({ toDo: [], doing: [], done: [] });
+  const [refresh, setRefresh] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Controla o modal
+  const [newTask, setNewTask] = useState({
+    descricao: "",
+    prioridade: "Média",
+    status: "pendente",
+  });
 
+  // Funções para abrir/fechar o modal
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
-  // Função para buscar os dados do backend
+  // Atualizar tarefas após deletar
+  const handleTaskDeleted = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/tarefas/api/tarefas/${id}/`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setRefresh((prev) => !prev);
+      } else {
+        console.error("Erro ao deletar a tarefa:", response.status);
+      }
+    } catch (error) {
+      console.error("Erro ao deletar a tarefa:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/tarefas/api/tarefas/");
-      const data = await response.json();
+        const data = await response.json();
         setTasks({
           toDo: data.filter((task) => task.status === "pendente"),
           doing: data.filter((task) => task.status === "em_progresso"),
-          done: data.filter((task) => task.status === "concluida")
+          done: data.filter((task) => task.status === "concluida"),
         });
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
@@ -27,11 +51,30 @@ export default function TaskPage() {
     };
 
     fetchTasks();
-  }, []);
+  }, [refresh]);
 
-  console.log(tasks)
+  // Adicionar nova tarefa
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://127.0.0.1:8000/tarefas/api/tarefas/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTask),
+      });
 
-
+      if (response.ok) {
+        setRefresh((prev) => !prev);
+        handleCloseModal(); // Fecha o modal após adicionar
+      } else {
+        console.error("Erro ao adicionar tarefa:", response.status);
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar tarefa:", error);
+    }
+  };
 
   return (
     <>
@@ -50,12 +93,14 @@ export default function TaskPage() {
           ) : (
             tasks.toDo.map((task) => (
               <TaskCard
-                key={task.id}
+                key={task.id_tarefa}
+                id={task.id_tarefa}
                 descricao={task.descricao}
                 prioridade={task.prioridade}
                 setor={task.nome_setor}
-                vinculadoA={task.vinculadoA}
+                vinculadoA={task.id_user}
                 status={task.status}
+                onTaskDeleted={handleTaskDeleted}
               />
             ))
           )}
@@ -68,12 +113,14 @@ export default function TaskPage() {
           ) : (
             tasks.doing.map((task) => (
               <TaskCard
-                key={task.id}
+                key={task.id_tarefa}
+                id={task.id_tarefa}
                 descricao={task.descricao}
                 prioridade={task.prioridade}
                 setor={task.nome_setor}
-                vinculadoA={task.vinculadoA}
+                vinculadoA={task.id_user}
                 status={task.status}
+                onTaskDeleted={handleTaskDeleted}
               />
             ))
           )}
@@ -86,19 +133,23 @@ export default function TaskPage() {
           ) : (
             tasks.done.map((task) => (
               <TaskCard
-                key={task.id}
+                key={task.id_tarefa}
+                id={task.id_tarefa}
                 descricao={task.descricao}
                 prioridade={task.prioridade}
                 setor={task.nome_setor}
                 vinculadoA={task.id_user}
                 status={task.status}
+                onTaskDeleted={handleTaskDeleted}
               />
             ))
           )}
         </div>
       </div>
 
-      <img src={Plus} alt="Add Task" className="adicionar" />
+      <button Link to={"/add-user"}>Adicionar Usuário</button>
+      <button>Adicionar Tarefa</button>
+
     </>
   );
 }

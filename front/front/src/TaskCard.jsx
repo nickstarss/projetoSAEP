@@ -4,20 +4,75 @@ import Edit from "./assets/Edit.svg";
 import Trash from "./assets/Trash.svg";
 import Certo from "./assets/Certo.svg";
 
-export default function TaskCard({ descricao, prioridade, setor, vinculadoA, status }) {
+export default function TaskCard({
+  id,
+  descricao,
+  prioridade,
+  setor,
+  vinculadoA,
+  status: initialStatus,
+  onTaskDeleted,
+  onStatusChange,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [status, setStatus] = useState(initialStatus); // Gerencia o estado local do status
 
+  // Abrir o modal
   const handleTrashClick = () => {
-    setIsModalOpen(true); // Abre o modal
+    setIsModalOpen(true);
   };
 
+  // Fechar o modal
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Fecha o modal
+    setIsModalOpen(false);
   };
 
-  const handleConfirmDelete = () => {
-    console.log("Tarefa excluída!"); // Substitua com a lógica de exclusão
-    setIsModalOpen(false); // Fecha o modal após confirmar
+  // Confirmar exclusão
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/tarefas/delete-task/${id}/`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        alert("Tarefa deletada com sucesso!");
+        onTaskDeleted(id); // Notifica o componente pai para remover a tarefa da lista
+      } else {
+        alert("Erro ao deletar a tarefa!");
+      }
+    } catch (error) {
+      console.error("Erro ao deletar tarefa:", error);
+    } finally {
+      setIsModalOpen(false); // Fecha o modal
+    }
+  };
+
+  // Atualizar o status da tarefa
+  const handleStatusUpdate = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/tarefas/api/tarefas/${id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Status atualizado com sucesso!");
+        onStatusChange(id, status); // Notifica o componente pai sobre a mudança
+      } else {
+        alert("Erro ao atualizar status!");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+    }
   };
 
   return (
@@ -26,8 +81,7 @@ export default function TaskCard({ descricao, prioridade, setor, vinculadoA, sta
         <div>
           <div className="task-content">
             <p>
-              <strong>Descrição:</strong>
-              {descricao}
+              <strong>Descrição:</strong> {descricao}
             </p>
             <p>
               <strong>Prioridade:</strong> {prioridade}
@@ -40,12 +94,18 @@ export default function TaskCard({ descricao, prioridade, setor, vinculadoA, sta
             </p>
           </div>
           <div className="task-status">
-            <select defaultValue={status}>
-              <option value="A fazer">A fazer</option>
-              <option value="Em andamento">Em andamento</option>
-              <option value="Concluído">Concluído</option>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)} // Atualiza o estado local
+            >
+              <option value="pendente">A fazer</option>
+              <option value="em_progresso">Em andamento</option>
+              <option value="concluida">Concluído</option>
             </select>
-            <button className="confirm-button">
+            <button
+              className="confirm-button"
+              onClick={handleStatusUpdate} // Chama a função para atualizar o status
+            >
               <img src={Certo} alt="Confirmar" />
             </button>
           </div>
@@ -64,12 +124,18 @@ export default function TaskCard({ descricao, prioridade, setor, vinculadoA, sta
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
-            <p>Deseja deletar essa tarefa?</p>
+            <p>Deseja excluir essa tarefa?</p>
             <div className="modal-actions">
-              <button onClick={handleConfirmDelete} className="modal-confirm-button">
+              <button
+                onClick={handleConfirmDelete}
+                className="modal-confirm-button"
+              >
                 Sim
               </button>
-              <button onClick={handleCloseModal} className="modal-cancel-button">
+              <button
+                onClick={handleCloseModal}
+                className="modal-cancel-button"
+              >
                 Não
               </button>
             </div>
