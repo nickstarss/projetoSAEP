@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./TaskPage.css";
 import Check from "./assets/Check.svg";
-import Plus from "./assets/Plus.svg";
 import TaskCard from "./TaskCard";
+import { Link } from "react-router-dom";
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState({ toDo: [], doing: [], done: [] });
   const [refresh, setRefresh] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Controla o modal
-  const [newTask, setNewTask] = useState({
-    descricao: "",
-    prioridade: "Média",
-    status: "pendente",
-  });
-
-  // Funções para abrir/fechar o modal
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
 
   // Atualizar tarefas após deletar
   const handleTaskDeleted = async (id) => {
@@ -35,6 +25,7 @@ export default function TaskPage() {
     }
   };
 
+  // Buscar tarefas
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -53,29 +44,6 @@ export default function TaskPage() {
     fetchTasks();
   }, [refresh]);
 
-  // Adicionar nova tarefa
-  const handleAddTask = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://127.0.0.1:8000/tarefas/api/tarefas/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTask),
-      });
-
-      if (response.ok) {
-        setRefresh((prev) => !prev);
-        handleCloseModal(); // Fecha o modal após adicionar
-      } else {
-        console.error("Erro ao adicionar tarefa:", response.status);
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar tarefa:", error);
-    }
-  };
-
   return (
     <>
       <div className="header">
@@ -83,9 +51,16 @@ export default function TaskPage() {
           <img src={Check} alt="Check" />
           <h1>TASKLY</h1>
         </div>
+
+        <div className="links-header">
+          <Link to="/adicionarUser">Adicionar usuário</Link>
+          <Link to="/">Gerenciamento de Tarefas</Link>
+          <Link to="/adicionarTarefa">Cadastro de Tarefas</Link>
+        </div>
       </div>
 
       <div className="main">
+        {/* ToDo Tasks */}
         <div className="toDo">
           <h1>ToDo</h1>
           {tasks.toDo.length === 0 ? (
@@ -106,6 +81,7 @@ export default function TaskPage() {
           )}
         </div>
 
+        {/* Doing Tasks */}
         <div className="Doing">
           <h1>Doing</h1>
           {tasks.doing.length === 0 ? (
@@ -126,6 +102,7 @@ export default function TaskPage() {
           )}
         </div>
 
+        {/* Done Tasks */}
         <div className="Done">
           <h1>Done</h1>
           {tasks.done.length === 0 ? (
@@ -147,9 +124,10 @@ export default function TaskPage() {
         </div>
       </div>
 
-      <button Link to={"/add-user"}>Adicionar Usuário</button>
-      <button>Adicionar Tarefa</button>
-
+      <div className="buttons-add">
+        <Link to="/adicionarUser">Adicionar usuário</Link>
+        <Link to="/adicionarTarefa">Adicionar tarefa</Link>
+      </div>
     </>
   );
 }

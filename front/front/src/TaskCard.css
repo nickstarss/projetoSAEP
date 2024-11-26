@@ -4,7 +4,7 @@
     border-radius: 15px;
     padding: 16px;
     margin-bottom: 20px;
-  }
+}
   
   .task-content p {
     margin: 8px 0;
@@ -16,11 +16,14 @@
     color: #004BA8;
   }
 
-  .task-actions{
-    gap: 10px;
+  .task-actions {
+    display: flex;
+    flex-direction: column; /* Coloca os botões em coluna */
+    align-items: flex-end; /* Alinha os botões à direita */
+    gap: 10px; /* Espaçamento entre os botões */
   }
   
-  .icon-button {
+  .icon-button, .icon-button2 {
     background-color: #0056b3;
     border: none;
     color: white;
@@ -29,23 +32,8 @@
     cursor: pointer;
     transition: 0.3s;
   }
-
-  .icon-button2 {
-    background-color: #0056b3;
-    border: none;
-    color: white;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: 0.3s;
-  }
-
-  .icon-button:hover {
-    background-color: #003f8a;
-  }
   
-  .icon-button2:hover {
+  .icon-button:hover, .icon-button2:hover {
     background-color: #003f8a;
   }
   

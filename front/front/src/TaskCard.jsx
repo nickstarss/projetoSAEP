@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import "./TaskCard.css"; // Arquivo de estilos
 import Edit from "./assets/Edit.svg";
 import Trash from "./assets/Trash.svg";
@@ -16,6 +17,7 @@ export default function TaskCard({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [status, setStatus] = useState(initialStatus); // Gerencia o estado local do status
+  const navigate = useNavigate(); // Hook para navegação
 
   // Abrir o modal
   const handleTrashClick = () => {
@@ -66,13 +68,18 @@ export default function TaskCard({
 
       if (response.ok) {
         alert("Status atualizado com sucesso!");
-        onStatusChange(id, status); // Notifica o componente pai sobre a mudança
+        onStatusChange(id, status);
       } else {
         alert("Erro ao atualizar status!");
       }
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
     }
+  };
+
+  // Navegar para a página de edição
+  const handleEditClick = () => {
+    navigate(`/edit-task/${id}`); // Redireciona para a página de edição com o ID da tarefa
   };
 
   return (
@@ -114,7 +121,7 @@ export default function TaskCard({
           <button className="icon-button" onClick={handleTrashClick}>
             <img src={Trash} alt="Excluir" />
           </button>
-          <button className="icon-button2">
+          <button className="icon-button2" onClick={handleEditClick}>
             <img src={Edit} alt="Editar" />
           </button>
         </div>
